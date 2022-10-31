@@ -8,8 +8,8 @@ class Product:
         self.ingredients = ingredients
         self.cost = cost
 
-    def __repr__(self) -> str:
-        return f"(Składniki={self.ingredients}, Koszt={self.cost})"
+    def __repr__(self):
+        return self.ingredients, self.cost
     #
     # @property
     # def ingredients(self):

@@ -3,15 +3,14 @@ import machine as m
 
 
 def run():
-    start = True # kondycja głównej pętli
-
-    try:    # dodanie maszyny
+    start = True
+    try:
         coffeMachine = m.Machine()
     except:
         print(traceback.format_exc())
 
     while start:
-        switch = input("Wybierz numer: ")
+        switch = input("start/stop: ")
         state = coffeMachine.switch(switch)
         if state == "exit":
             start = False
