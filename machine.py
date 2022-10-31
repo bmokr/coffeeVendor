@@ -36,7 +36,7 @@ class Machine:
             print("Access denied.")
 
     def pay(self, name, value):
-        self.money.update({name: value + self.money[name]})
+        self.money.update({name: float(value) + float(self.money[name])})
 
     def getProducts(self, name): # get product price
         return self.products.get(name)
@@ -101,11 +101,11 @@ class Machine:
 
         elif case == "stop":
             return "exit"
-############################################# product
+
         elif case == "start":
             iterator = 1
-            for k in cls.products:
-                print(str(iterator) + ". " + str(k) + " " + str(k[1]) + "\n")
+            for k, v in cls.products.items():
+                print(str(iterator) + ". " + str(k) + " " + str(v.returnCost()))
                 iterator += 1
             coffeeCase = input("Pic up a coffe by a name: ")
 
@@ -113,16 +113,27 @@ class Machine:
                 waitConfirmation = False
 
                 while not waitConfirmation:
-                    paymentOption = input("Input PLN/USD/CARD: ")
-                    if paymentOption == "PLN" or "CARD":
-                        cls.pay("pln", cls.products[coffeeCase[1]])
+                    paymentOption = input("Input pln/usd/card: ")
+
+                    if paymentOption == "pln":
+                        print("tu")
+                        cls.pay("pln", cls.products[coffeeCase].returnCost())
+                        print("Pls wait...\nDone.")
                         waitConfirmation = True
-                    elif paymentOption == "USD":
+
+                    elif paymentOption == "usd":
                         url = 'https://api.exchangerate-api.com/v4/latest/USD'
                         converter = ex.RealTimeCurrencyConverter(url)
-                        converted = converter.convert('INR', 'USD', cls.products[coffeeCase[1]])
+                        converted = converter.convert('PLN', 'USD', float(cls.products[coffeeCase].returnCost()))
                         cls.pay("usd", converted)
+                        print("Pls wait...\nDone.")
                         waitConfirmation = True
+
+                    elif paymentOption == "card":
+                        cls.pay("pln", cls.products[coffeeCase].returnCost())
+                        print("Pls wait...\nDone.")
+                        waitConfirmation = True
+
                     else:
                         inp = input("Invalid payment. Repeat? y/n: ")
                         if inp == "n":

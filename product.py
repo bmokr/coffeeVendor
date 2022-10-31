@@ -8,9 +8,12 @@ class Product:
         self.ingredients = ingredients
         self.cost = cost
 
-    def __repr__(self):
-        return self.ingredients, self.cost
-    #
+    def returnCost(self):
+        return self.cost
+
+    def returnIngredients(self):
+        return self.ingredients
+
     # @property
     # def ingredients(self):
     #     return self.ingredients

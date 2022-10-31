@@ -10,7 +10,7 @@ def run():
         print(traceback.format_exc())
 
     while start:
-        switch = input("start/stop: ")
+        switch = input("start/stop/(serwis +1): ")
         state = coffeMachine.switch(switch)
         if state == "exit":
             start = False
