@@ -3,12 +3,14 @@ import random
 # from interruptingcow import timeout  # https://pypi.org/project/interruptingcow/
 # no signal on win os module 'signal' has no attribute 'SIGALRM'
 import timeout
-import exchanger as ex
+import curr as c
+#import exchanger as ex
 
 class Machine:
     def __init__(self):
         # Initialize the new instance
         self.products = {}
+        self.currencies = {"usd": c.Currency(4.95)}
         self.money = {"pln": 0, "usd": 0}
         self.accessFlag = False
 
@@ -18,10 +20,17 @@ class Machine:
     def setAccessFlag(self, value):
         self.accessFlag = value
 
+    def checkBalance(self):
+        for value in self.money.values():
+            if value != 0:
+                return True
+        return False
+
     def moneyGet(self, password):
-        if password and (self.money["pln"] != 0 or self.money["usd"] != 0):
-            print("Withdraw: \nPLN: {}.\nUSD: {}.\n".format(self.money["pln"], self.money["usd"]))
-            self.money.update({"pln": 0, "usd": 0})
+        if password and self.checkBalance():
+            for k, v in self.money.items():
+                print("Withdraw: \n{}: {}.".format(k, v))
+                self.money.update({k: 0})
         else:
             if not password:
                 print("Access denied.")
@@ -38,15 +47,27 @@ class Machine:
     def pay(self, name, value):
         self.money.update({name: float(value) + float(self.money[name])})
 
-    def getProducts(self, name): # get product price
+    def getProducts(self, name):  # get product price
         return self.products.get(name)
 
-    def setProducts(self, password): # update or set product
+    def setProducts(self, password):  # update or set product
         if password:
             name = input("Input product name: ")
-            ingredients = input("Input product ingredients (like *, *): ") # ???
+            ingredients = input("Input product ingredients (like *, *): ")
             cost = input("Input product cost: ")
             self.products.update({name: p.Product(ingredients, cost)})
+        else:
+            print("Access denied.")
+
+    def getCoefficient(self, name):  # get currency coefficient
+        return self.currencies.get(name)
+
+    def setCoefficient(self, password):
+        if password:
+            name = input("Input currency name: ")
+            coefficient = input("Input currency coefficient: ")
+            self.currencies.update({name: c.Currency(coefficient)})
+            self.money.update({name: 0})
         else:
             print("Access denied.")
 
@@ -54,7 +75,7 @@ class Machine:
     # @ co to, poczytac
     @timeout.timeout(60)
     def serviceTask(cls, accessFlag):
-        serwisJob = input("1 - take out money\n2 - set money\n3 - update product\n")
+        serwisJob = input("1 - take out money\n2 - set money\n3 - update product\n4 - add currency")
         if serwisJob == "1" and accessFlag:
             cls.moneyGet(cls.getAccessFlag())
             cls.setAccessFlag(False)
@@ -65,6 +86,9 @@ class Machine:
             cls.setAccessFlag(False)
         elif serwisJob == "3" and accessFlag:
             cls.setProducts(cls.getAccessFlag())
+            cls.setAccessFlag(False)
+        elif serwisJob == "4" and accessFlag:
+            cls.setCoefficient(cls.getAccessFlag())
             cls.setAccessFlag(False)
         else:
             print("Access denied.")
@@ -113,19 +137,23 @@ class Machine:
                 waitConfirmation = False
 
                 while not waitConfirmation:
-                    paymentOption = input("Input pln/usd/card: ")
+                    paymentOption = input("Input pln/else/card: ")
 
                     if paymentOption == "pln":
-                        print("tu")
                         cls.pay("pln", cls.products[coffeeCase].returnCost())
                         print("Pls wait...\nDone.")
                         waitConfirmation = True
 
-                    elif paymentOption == "usd":
-                        url = 'https://api.exchangerate-api.com/v4/latest/USD'
-                        converter = ex.RealTimeCurrencyConverter(url)
-                        converted = converter.convert('PLN', 'USD', float(cls.products[coffeeCase].returnCost()))
-                        cls.pay("usd", converted)
+                    elif paymentOption == "else":
+                        # url = 'https://api.exchangerate-api.com/v4/latest/USD'
+                        # converter = ex.RealTimeCurrencyConverter(url)
+                        # converted = converter.convert('PLN', 'USD', float(cls.products[coffeeCase].returnCost()))
+                        # cls.pay("usd", converted)
+                        for currencies in cls.currencies.keys():
+                            print(currencies)
+                        currency = input("Pick currency: ")
+                        converted = float(cls.products[coffeeCase].returnCost()) * cls.currencies[currency].getVal()
+                        cls.pay(currency, converted)
                         print("Pls wait...\nDone.")
                         waitConfirmation = True
 
