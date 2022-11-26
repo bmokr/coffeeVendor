@@ -1,24 +1,29 @@
 import product as p
-import random
-# from interruptingcow import timeout  # https://pypi.org/project/interruptingcow/
-# no signal on win os module 'signal' has no attribute 'SIGALRM'
+import conteners as cont
 import timeout
 import curr as c
-#import exchanger as ex
+# import exchanger as ex
 
 class Machine:
+    _access_flag: bool
+
     def __init__(self):
         # Initialize the new instance
-        self.products = {}
-        self.currencies = {"usd": c.Currency(4.95)}
-        self.money = {"pln": 0, "usd": 0}
-        self.accessFlag = False
+        self._access_flag = False  # Flag for checking if service can have access to machine etc.
+        self.products = cont.Products()  # Initialize used containers like dictionaries classes
+        self.currencies = cont.Currencies()
+        self.money = cont.StoredMoney()
 
-    def getAccessFlag(self):
-        return self.accessFlag
+    @property
+    def access_flag(self):
+        return self._access_flag
 
-    def setAccessFlag(self, value):
-        self.accessFlag = value
+    @access_flag.setter
+    def access_flag(self, value):
+        self._access_flag = value
+
+
+
 
     def checkBalance(self):
         for value in self.money.values():
@@ -71,105 +76,22 @@ class Machine:
         else:
             print("Access denied.")
 
-    ##############################################################################################
-    # @ co to, poczytac
     @timeout.timeout(60)
-    def serviceTask(cls, accessFlag):
-        serwisJob = input("1 - take out money\n2 - set money\n3 - update product\n4 - add currency")
-        if serwisJob == "1" and accessFlag:
-            cls.moneyGet(cls.getAccessFlag())
-            cls.setAccessFlag(False)
-        elif serwisJob == "2" and accessFlag:
+    def service_task(self, is_access):  # method allowing change machine properties
+        which_service = input("1 - take out money\n2 - set money\n3 - update product\n4 - add currency")
+        if which_service == "1" and is_access:
+            #self.moneyGet(self.getAccessFlag())
+            self.access_flag = False
+        elif which_service == "2" and is_access:
             plnIn = input("Input pln: ")
             usdIn = input("Input usd: ")
-            cls.moneySet(cls.getAccessFlag(), plnIn, usdIn)
-            cls.setAccessFlag(False)
-        elif serwisJob == "3" and accessFlag:
-            cls.setProducts(cls.getAccessFlag())
-            cls.setAccessFlag(False)
-        elif serwisJob == "4" and accessFlag:
-            cls.setCoefficient(cls.getAccessFlag())
-            cls.setAccessFlag(False)
+            #self.moneySet(self.getAccessFlag(), plnIn, usdIn)
+            self.access_flag = False
+        elif which_service == "3" and is_access:
+            #self.setProducts(self.getAccessFlag())
+            self.access_flag = False
+        elif which_service == "4" and is_access:
+            #self.setCoefficient(self.getAccessFlag())
+            self.access_flag = False
         else:
             print("Access denied.")
-
-    def switch(cls, case):
-        if case == "serwis":
-            x = random.randint(0, 9)
-            if input(str(x)) == str(x + 1):
-                cls.setAccessFlag(True)
-                print("You have 60 sek.\n")
-                try:
-                    cls.serviceTask(cls.getAccessFlag())
-                except:
-                    print("Didn't finish within 60 seconds")
-                    cls.setAccessFlag(False)
-                # try:
-                #     with timeout(10):  # stops after 10 sek
-                #         serwisJob = input("1 - take out money\n2- set money\n3-update product\n")
-                #         if serwisJob == "1":
-                #             cls.moneyGet(1)
-                #         elif serwisJob == "2":
-                #             plnIn = input("Input pln: ")
-                #             usdIn = input("Input usd: ")
-                #             cls.moneySet(1, plnIn, usdIn)
-                #         elif serwisJob == "3":
-                #             cls.setProducts(1)
-                #         else:
-                #             pass
-                # except RuntimeError:
-                #     print("didn't finish within 10 seconds")  # działa tylko w unix interruptingcow
-            else:
-                print("Service not granted.\n")
-            return 1
-
-        elif case == "stop":
-            return "exit"
-
-        elif case == "start":
-            iterator = 1
-            for k, v in cls.products.items():
-                print(str(iterator) + ". " + str(k) + " " + str(v.returnCost()))
-                iterator += 1
-            coffeeCase = input("Pic up a coffe by a name: ")
-
-            if coffeeCase in cls.products:
-                waitConfirmation = False
-
-                while not waitConfirmation:
-                    paymentOption = input("Input pln/else/card: ")
-
-                    if paymentOption == "pln":
-                        cls.pay("pln", cls.products[coffeeCase].returnCost())
-                        print("Pls wait...\nDone.")
-                        waitConfirmation = True
-
-                    elif paymentOption == "else":
-                        # url = 'https://api.exchangerate-api.com/v4/latest/USD'
-                        # converter = ex.RealTimeCurrencyConverter(url)
-                        # converted = converter.convert('PLN', 'USD', float(cls.products[coffeeCase].returnCost()))
-                        # cls.pay("usd", converted)
-                        for currencies in cls.currencies.keys():
-                            print(currencies)
-                        currency = input("Pick currency: ")
-                        converted = float(cls.products[coffeeCase].returnCost()) * cls.currencies[currency].getVal()
-                        cls.pay(currency, converted)
-                        print("Pls wait...\nDone.")
-                        waitConfirmation = True
-
-                    elif paymentOption == "card":
-                        cls.pay("pln", cls.products[coffeeCase].returnCost())
-                        print("Pls wait...\nDone.")
-                        waitConfirmation = True
-
-                    else:
-                        inp = input("Invalid payment. Repeat? y/n: ")
-                        if inp == "n":
-                            waitConfirmation = True
-                        else:
-                            pass
-            else:
-                print("Invalid coffee.")
-        else:
-            print("There is no such option.")
-            return 1

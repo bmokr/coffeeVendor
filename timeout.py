@@ -1,7 +1,8 @@
 from threading import Thread  # https://stackoverflow.com/questions/21827874/timeout-a-function-windows
 import functools
+# library and function imported from:
 # https://docs.python.org/3/library/threading.html#threading.Thread.join
-
+# timeout is used for service task that was meant to last no longer than some period of time
 
 def timeout(seconds_before_timeout):
     def deco(func):
