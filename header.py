@@ -1,8 +1,8 @@
 import machine
-import random
 
 
 def run():
+
     start = True
     coffee_machine = machine.Machine()
 
@@ -10,19 +10,14 @@ def run():
         case = input("start/stop/(service +1): ")  # user input of choice
 
         if case == "service":
-            password = random.randint(0, 9)  # generate password - simplest method
-            if input(str(password)) == str(password + 1):
-                print("You have 60 sek.\n")
-                coffee_machine.access_flag = True  # granting access
-                try:
-                    coffee_machine.service_task(coffee_machine.access_flag())
-                except:
-                    print("Didn't finish within 60 seconds")
-                    coffee_machine.access_flag = False  # removing access
-            else:
-                print("Service not granted.\n")
+            try:
+                coffee_machine.service_task()  # service task
+                coffee_machine.is_access_valid()  # removing access
+            except:
+                print("Didn't finish within 60 seconds")
+                coffee_machine.is_access_valid()  # removing access
 
-        elif case == "stop":
+        elif case == "stop":  # end program
             start = False
 
         elif case == "start":
@@ -72,6 +67,5 @@ def run():
                 print("Invalid coffee.")
         else:
             print("There is no such option.")
-            pass
 
     exit(0)
