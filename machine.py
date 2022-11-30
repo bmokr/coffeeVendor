@@ -28,7 +28,7 @@ class Machine:
         return self._money
 
     @money.setter
-    def money(self, **value):
+    def money(self, value):
         self._money = value
 
     @property
@@ -36,7 +36,7 @@ class Machine:
         return self._currencies
 
     @currencies.setter
-    def currencies(self, **value):
+    def currencies(self, value):
         self._currencies = value
 
     @property
@@ -44,12 +44,12 @@ class Machine:
         return self._products
 
     @products.setter
-    def products(self, **value):
+    def products(self, value):
         self._products = value
 
     def check_balance(self):  # method checking machine stored money state
         if self._money:  # check if not empty
-            for value in self._money.values():
+            for value in self.money.values():
                 if value != 0:
                     return True
             return False
@@ -68,8 +68,9 @@ class Machine:
             self.access_flag = True  # granting access
         else:
             print("Service not granted.\n")
+            return 0
 
-        which_service = input("1 - take out money\n2 - set money\n3 - update product\n4 - add currency")
+        which_service = input("1 - take out money\n2 - set money\n3 - update product\n4 - add currency\n")
 
         if which_service == "1" and self.access_flag:  # take out money
             if self.check_balance():
@@ -99,55 +100,45 @@ class Machine:
     def is_access_valid(self):  # run after service task to ensure access is denied
         if self.access_flag:    # because if service thread will end mid task, access wont be denied
             self.access_flag = False
+            return 0
         else:
-            pass
+            return 0
 
     def default_task(self):
-        # print enumerated products
-        # pick product
-        pass
+        for i, (k, v) in enumerate(self.products.items()):  # print enumerated products
+            print(str(i) + ". " + str(k) + " " + str(v))
 
-        # iterator = 1
-        # ###################################################################
-        # for k, v in cls.products.items():
-        #     print(str(iterator) + ". " + str(k) + " " + str(v.returnCost()))
-        #     iterator += 1
-        # coffeeCase = input("Pic up a coffee by a name: ")
-        #
-        # if coffeeCase in cls.products:
-        #     waitConfirmation = False
-        #
-        #     while not waitConfirmation:
-        #         paymentOption = input("Input pln/else/card: ")
-        #
-        #         if paymentOption == "pln":
-        #             cls.pay("pln", cls.products[coffeeCase].returnCost())
-        #             print("Pls wait...\nDone.")
-        #             waitConfirmation = True
-        #
-        #         elif paymentOption == "else":
-        #             # url = 'https://api.exchangerate-api.com/v4/latest/USD'
-        #             # converter = ex.RealTimeCurrencyConverter(url)
-        #             # converted = converter.convert('PLN', 'USD', float(cls.products[coffeeCase].returnCost()))
-        #             # cls.pay("usd", converted)
-        #             for currencies in cls.currencies.keys():
-        #                 print(currencies)
-        #             currency = input("Pick currency: ")
-        #             converted = float(cls.products[coffeeCase].returnCost()) * cls.currencies[currency].getVal()
-        #             cls.pay(currency, converted)
-        #             print("Pls wait...\nDone.")
-        #             waitConfirmation = True
-        #
-        #         elif paymentOption == "card":
-        #             cls.pay("pln", cls.products[coffeeCase].returnCost())
-        #             print("Pls wait...\nDone.")
-        #             waitConfirmation = True
-        #
-        #         else:
-        #             inp = input("Invalid payment. Repeat? y/n: ")
-        #             if inp == "n":
-        #                 waitConfirmation = True
-        #             else:
-        #                 pass
-        # else:
-        #     print("Invalid coffee.")
+        coffee_case = input("Pic up a coffee by a name: ")
+
+        if coffee_case in self.products.keys():  # pick product
+            wait_confirmation = False
+
+            while not wait_confirmation:  # pick payment option
+                payment_option = input("Input Pln/Else: ")
+
+                if payment_option == "Pln":
+                    self.money.update({"Pln": self.products[coffee_case]})
+                    print("Pls wait...\nDone.")
+                    wait_confirmation = True
+
+                elif payment_option == "else":
+                    # url = 'https://api.exchangerate-api.com/v4/latest/USD'
+                    # converter = ex.RealTimeCurrencyConverter(url)
+                    # converted = converter.convert('PLN', 'USD', float(cls.products[coffeeCase].returnCost()))
+                    # cls.pay("usd", converted)
+                    for currencies in self.currencies.keys():
+                        print(currencies)
+                    currency = input("Pick currency: ")
+                    converted = float(self.products[coffee_case]) * self.currencies[currency]
+                    self.money.update({currency: converted})
+                    print("Pls wait...\nDone.")
+                    wait_confirmation = True
+
+                else:
+                    inp = input("Invalid payment. Repeat? y/n: ")
+                    if inp == "n":
+                        wait_confirmation = True
+                    else:
+                        pass
+        else:
+            print("Invalid coffee.")

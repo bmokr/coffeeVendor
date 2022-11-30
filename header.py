@@ -13,9 +13,10 @@ def run():
             try:
                 coffee_machine.service_task()  # service task
                 coffee_machine.is_access_valid()  # removing access
-            except:
+            except Exception as e:
                 print("Didn't finish within 60 seconds")
                 coffee_machine.is_access_valid()  # removing access
+                raise e
 
         elif case == "stop":  # end program
             start = False
