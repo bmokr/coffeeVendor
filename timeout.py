@@ -1,8 +1,9 @@
-from threading import Thread  # https://stackoverflow.com/questions/21827874/timeout-a-function-windows
+import threading  # https://stackoverflow.com/questions/21827874/timeout-a-function-windows
 import functools
 # library and function imported from:
 # https://docs.python.org/3/library/threading.html#threading.Thread.join
 # timeout is used for service task that was meant to last no longer than some period of time
+# fun decorator but it's messy
 
 
 def timeout(seconds_before_timeout):
@@ -16,11 +17,13 @@ def timeout(seconds_before_timeout):
                     res[0] = func(*args, **kwargs)
                 except Exception as E:
                     res[0] = E
-            t = Thread(target=new_func)
+
+            t = threading.Thread(target=new_func)
             t.daemon = True
             try:
                 t.start()
                 t.join(seconds_before_timeout)
+
             except Exception as e:
                 print('error starting thread')
                 raise e

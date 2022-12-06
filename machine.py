@@ -1,7 +1,7 @@
 import conteners as cont
-import timeout
 import random
 # import exchanger as ex
+import exit_deco
 
 
 class Machine:
@@ -60,39 +60,45 @@ class Machine:
     def input_method(name, value):
         return input("Input {}: ".format(name)), input("Input {}: ".format(value))  # default input method
 
-    @timeout.timeout(60)
-    def service_task(self):  # method allowing change machine properties
-        print("You have 60 sek.\n")
+    def auth(self):
         password = random.randint(0, 9)  # generate password - simplest method
         if input(str(password)) == str(password + 1):
             self.access_flag = True  # granting access
+            return 1
         else:
             print("Service not granted.\n")
+            self.access_flag = False
             return 0
 
-        which_service = input("1 - take out money\n2 - set money\n3 - update product\n4 - add currency\n")
+    @exit_deco.exit_after(10)
+    def service_task(self):  # method allowing change machine properties
 
-        if which_service == "1" and self.access_flag:  # take out money
-            if self.check_balance():
-                buffer = self.money
-                for k, v in buffer:
-                    print("Withdraw: \n{}: {}.".format(k, v))
-                    self.money = k, 0  # update dictionary state after withdraw
-            else:
-                print("Vault is empty")
-            self.access_flag = False
+        if self.auth():
+            print("You have 60 sek.\n")
 
-        elif which_service == "2" and self.access_flag:  # set deposit
-            self.money = self.input_method("currency name", "amount of money")
-            self.access_flag = False
+            which_service = input("1 - take out money\n2 - set money\n3 - update product\n4 - add currency\n")
 
-        elif which_service == "3" and self.access_flag:  # update product
-            self.products = self.input_method("coffee name", "price")
-            self.access_flag = False
+            if which_service == "1" and self.access_flag:  # take out money
+                if self.check_balance():
+                    buffer = self.money
+                    for k, v in buffer:
+                        print("Withdraw: \n{}: {}.".format(k, v))
+                        self.money = k, 0  # update dictionary state after withdraw
+                else:
+                    print("Vault is empty")
+                self.access_flag = False
 
-        elif which_service == "4" and self.access_flag:  # add currency
-            self.currencies = self.input_method("currency name", "multiplier (x*PLN)")
-            self.access_flag = False
+            elif which_service == "2" and self.access_flag:  # set deposit
+                self.money = self.input_method("currency name", "amount of money")
+                self.access_flag = False
+
+            elif which_service == "3" and self.access_flag:  # update product
+                self.products = self.input_method("coffee name", "price")
+                self.access_flag = False
+
+            elif which_service == "4" and self.access_flag:  # add currency
+                self.currencies = self.input_method("currency name", "multiplier (x*PLN)")
+                self.access_flag = False
 
         else:
             print("Access denied.")
@@ -103,6 +109,10 @@ class Machine:
             return 0
         else:
             return 0
+
+    def service_for_user(self):  # method for user usage
+        self.service_task()
+        self.is_access_valid()
 
     def default_task(self):
         for i, (k, v) in enumerate(self.products.items()):  # print enumerated products
