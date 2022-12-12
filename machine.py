@@ -27,9 +27,9 @@ class Machine:
     def money(self):
         return self._money
 
-    @money.setter
+    @money.setter  # out
     def money(self, value):
-        self._money = value
+        self._money[value[0]] = value[1]
 
     @property
     def currencies(self):
@@ -70,7 +70,7 @@ class Machine:
             self.access_flag = False
             return 0
 
-    @exit_deco.exit_after(10)
+    @exit_deco.exit_after(60)
     def service_task(self):  # method allowing change machine properties
 
         if self.auth():
@@ -80,10 +80,9 @@ class Machine:
 
             if which_service == "1" and self.access_flag:  # take out money
                 if self.check_balance():
-                    buffer = self.money
-                    for k, v in buffer:
+                    for k, v in self.money.items():
                         print("Withdraw: \n{}: {}.".format(k, v))
-                        self.money = k, 0  # update dictionary state after withdraw
+                        self.money = k, "0.00"  # update dictionary state after withdraw
                 else:
                     print("Vault is empty")
                 self.access_flag = False

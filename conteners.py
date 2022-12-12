@@ -3,9 +3,10 @@
 class StoredMoney(dict):  # stored money
     def __setitem__(self, key, value):
         try:  # check if input value is float and if it's in x.xx format
-            if not (isinstance(value, float) and len(str(value).split('.')[-1]) == 2):
+            if not len(str(value).split('.')[-1]) == 2:
                 raise ValueError
             else:
+                key = key.capitalize()  # uppercase first letter
                 super().__setitem__(key, value)
         except ValueError:
             print("Value error, must be a float x.xx type")
