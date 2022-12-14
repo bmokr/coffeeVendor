@@ -1,3 +1,4 @@
+# not mine; example of well writen user-type dict-like container
 DEFAULT_CURRENCIES = {
     'zł': 1,
     '$': 4.9,

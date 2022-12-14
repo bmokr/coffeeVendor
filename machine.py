@@ -23,33 +23,9 @@ class Machine:
     def access_flag(self, value):
         self._access_flag = value
 
-    @property
-    def money(self):
-        return self._money
-
-    @money.setter  # out
-    def money(self, value):
-        self._money[value[0]] = value[1]
-
-    @property
-    def currencies(self):
-        return self._currencies
-
-    @currencies.setter
-    def currencies(self, value):
-        self._currencies = value
-
-    @property
-    def products(self):
-        return self._products
-
-    @products.setter
-    def products(self, value):
-        self._products = value
-
     def check_balance(self):  # method checking machine stored money state
         if self._money:  # check if not empty
-            for value in self.money.values():
+            for value in self._money.values():
                 if value != 0:
                     return True
             return False
@@ -80,23 +56,23 @@ class Machine:
 
             if which_service == "1" and self.access_flag:  # take out money
                 if self.check_balance():
-                    for k, v in self.money.items():
+                    for k, v in self._money.items():
                         print("Withdraw: \n{}: {}.".format(k, v))
-                        self.money = k, "0.00"  # update dictionary state after withdraw
+                        self._money = k, "0.00"  # update dictionary state after withdraw
                 else:
                     print("Vault is empty")
                 self.access_flag = False
 
             elif which_service == "2" and self.access_flag:  # set deposit
-                self.money = self.input_method("currency name", "amount of money")
+                self._money = self.input_method("currency name", "amount of money")
                 self.access_flag = False
 
             elif which_service == "3" and self.access_flag:  # update product
-                self.products = self.input_method("coffee name", "price")
+                self._products = self.input_method("coffee name", "price")
                 self.access_flag = False
 
             elif which_service == "4" and self.access_flag:  # add currency
-                self.currencies = self.input_method("currency name", "multiplier (x*PLN)")
+                self._currencies = self.input_method("currency name", "multiplier (x*PLN)")
                 self.access_flag = False
 
         else:
@@ -114,32 +90,32 @@ class Machine:
         self.is_access_valid()
 
     def default_task(self):
-        for i, (k, v) in enumerate(self.products.items()):  # print enumerated products
+        for i, (k, v) in enumerate(self._products.items()):  # print enumerated products
             print(str(i) + ". " + str(k) + " " + str(v))
 
         coffee_case = input("Pic up a coffee by a name: ")
 
-        if coffee_case in self.products.keys():  # pick product
+        if coffee_case in self._products.keys():  # pick product
             wait_confirmation = False
 
             while not wait_confirmation:  # pick payment option
                 payment_option = input("Input Pln/Else: ")
 
                 if payment_option == "Pln":
-                    self.money.update({"Pln": self.products[coffee_case]})
+                    self._money.update({"Pln": self._products[coffee_case]})
                     print("Pls wait...\nDone.")
                     wait_confirmation = True
 
-                elif payment_option == "else":
+                elif payment_option == "Else":
                     # url = 'https://api.exchangerate-api.com/v4/latest/USD'
                     # converter = ex.RealTimeCurrencyConverter(url)
                     # converted = converter.convert('PLN', 'USD', float(cls.products[coffeeCase].returnCost()))
                     # cls.pay("usd", converted)
-                    for currencies in self.currencies.keys():
+                    for currencies in self._currencies.keys():
                         print(currencies)
                     currency = input("Pick currency: ")
-                    converted = float(self.products[coffee_case]) * self.currencies[currency]
-                    self.money.update({currency: converted})
+                    converted = float(self._products[coffee_case]) * self._currencies[currency]
+                    self._money.update({currency: converted})
                     print("Pls wait...\nDone.")
                     wait_confirmation = True
 
